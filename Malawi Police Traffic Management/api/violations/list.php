@@ -1,0 +1,45 @@
+<?php
+require_once '../config/database.php';
+
+try {
+    $whereClause = "";
+    $params = [];
+
+    // Handle status filter
+    if (isset($_GET['status']) && $_GET['status'] !== 'all') {
+        $whereClause = "WHERE v.status = ?";
+        $params[] = $_GET['status'];
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT 
+            v.*,
+            vt.violation_name,
+            vt.description as violation_description,
+            vh.license_plate,
+            vh.owner_name,
+            o.serviceNumber,
+            o.fullName as officer_name
+        FROM violations v
+        LEFT JOIN violation_types vt ON v.violation_type_id = vt.typeID
+        LEFT JOIN vehicles vh ON v.vehicle_id = vh.vehiclesID
+        LEFT JOIN officers o ON v.officer_id = o.officerID
+        $whereClause
+        ORDER BY v.violation_date DESC
+        LIMIT 100
+    ");
+    
+    $stmt->execute($params);
+    $violations = $stmt->fetchAll();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $violations
+    ]);
+} catch(PDOException $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error: ' . $e->getMessage()
+    ]);
+}
+?>
