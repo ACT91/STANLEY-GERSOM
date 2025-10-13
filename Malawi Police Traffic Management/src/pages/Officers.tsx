@@ -5,7 +5,9 @@ import type { Officer } from '@/types';
 
 export default function Officers() {
   const [officers, setOfficers] = useState<Officer[]>([]);
+  const [filteredOfficers, setFilteredOfficers] = useState<Officer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newOfficer, setNewOfficer] = useState({
     serviceNumber: '',
@@ -19,6 +21,10 @@ export default function Officers() {
     loadOfficers();
   }, []);
 
+  useEffect(() => {
+    filterOfficers();
+  }, [searchTerm, officers]);
+
   const loadOfficers = async () => {
     try {
       const result = await api.getOfficers();
@@ -30,6 +36,20 @@ export default function Officers() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterOfficers = () => {
+    if (!searchTerm.trim()) {
+      setFilteredOfficers(officers);
+      return;
+    }
+
+    const filtered = officers.filter(officer =>
+      officer.serviceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.rank.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredOfficers(filtered);
   };
 
   const handleAddOfficer = async (e: React.FormEvent) => {
@@ -173,6 +193,17 @@ export default function Officers() {
           <CardDescription>Manage police officers and their access</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Search Bar */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search by service number, name, or rank..."
+            />
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -187,7 +218,7 @@ export default function Officers() {
                 </tr>
               </thead>
               <tbody>
-                {officers.map((officer) => (
+                {filteredOfficers.map((officer) => (
                   <tr key={officer.officerID} className="border-b hover:bg-gray-50">
                     <td className="p-2 font-medium">{officer.serviceNumber}</td>
                     <td className="p-2">{officer.fullName}</td>
@@ -224,6 +255,12 @@ export default function Officers() {
                 ))}
               </tbody>
             </table>
+            
+            {filteredOfficers.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                {searchTerm ? 'No officers found matching your search.' : 'No officers found.'}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

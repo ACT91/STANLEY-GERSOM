@@ -89,6 +89,12 @@ export const api = {
     return response.json();
   },
 
+  // Vehicles management
+  getVehicles: async () => {
+    const response = await fetch(`${API_BASE_URL}/vehicles/list.php`);
+    return response.json();
+  },
+
   // Reports
   getReports: async (type: string, dateRange: DateRange) => {
     const response = await fetch(`${API_BASE_URL}/reports/generate.php`, {

@@ -18,8 +18,10 @@ try {
             vt.description as violation_description,
             vh.license_plate,
             vh.owner_name,
+            vh.vehicles_type,
             o.serviceNumber,
-            o.fullName as officer_name
+            o.fullName as officer_name,
+            o.rank as officer_rank
         FROM violations v
         LEFT JOIN violation_types vt ON v.violation_type_id = vt.typeID
         LEFT JOIN vehicles vh ON v.vehicle_id = vh.vehiclesID

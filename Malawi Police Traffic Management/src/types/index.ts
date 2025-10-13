@@ -55,6 +55,13 @@ export interface Violation {
   payment_method?: 'cash' | 'airtel_money' | 'mpamba' | 'bank';
   dispute_reason?: string;
   resolved_by?: number;
+  // Additional fields from API joins
+  license_plate?: string;
+  violation_name?: string;
+  officer_name?: string;
+  owner_name?: string;
+  vehicles_type?: string;
+  officer_rank?: string;
 }
 
 export interface DashboardStats {
