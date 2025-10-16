@@ -4,11 +4,15 @@ import Dashboard from './pages/Dashboard';
 import Officers from './pages/Officers';
 import Violations from './pages/Violations';
 import Vehicles from './pages/Vehicles';
+import AllActivities from './pages/AllActivities';
 import type { Admin } from './types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const [currentUser, setCurrentUser] = useState<Admin | null>(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   if (!currentUser) {
     return <Login onLogin={setCurrentUser} />;
@@ -17,15 +21,17 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard admin={currentUser} />;
+        return <Dashboard admin={currentUser} onNavigate={setCurrentPage} />;
       case 'officers':
         return <Officers />;
       case 'violations':
         return <Violations />;
       case 'vehicles':
         return <Vehicles />;
+      case 'all-activities':
+        return <AllActivities />;
       default:
-        return <Dashboard admin={currentUser} />;
+        return <Dashboard admin={currentUser} onNavigate={setCurrentPage} />;
     }
   };
 
@@ -44,10 +50,10 @@ function App() {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setCurrentPage('dashboard')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currentPage === 'dashboard'
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 Dashboard
@@ -55,10 +61,10 @@ function App() {
               
               <button
                 onClick={() => setCurrentPage('officers')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currentPage === 'officers'
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 Officers
@@ -66,10 +72,10 @@ function App() {
               
               <button
                 onClick={() => setCurrentPage('violations')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currentPage === 'violations'
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 Violations
@@ -77,23 +83,45 @@ function App() {
               
               <button
                 onClick={() => setCurrentPage('vehicles')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currentPage === 'vehicles'
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 Vehicles
               </button>
               
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">{currentUser.fullName}</span>
+              {/* User Menu Dropdown */}
+              <div className="relative">
                 <button
-                  onClick={() => setCurrentUser(null)}
-                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                 >
-                  Logout
+                  <FontAwesomeIcon icon={faUser} />
+                  <span>{currentUser.fullName}</span>
+                  <FontAwesomeIcon icon={faChevronDown} className={`transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>
+                
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50">
+                    <div className="py-1">
+                      <div className="px-4 py-2 text-sm text-gray-500 border-b">
+                        {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCurrentUser(null);
+                          setShowUserMenu(false);
+                        }}
+                        className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faSignOutAlt} />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -43,6 +43,20 @@ export const api = {
     return response.json();
   },
 
+  // Update vehicle information
+  updateVehicle: async (vehicleId: number, data: {
+    owner_name: string;
+    owner_phone: string;
+    vehicles_type: string;
+  }) => {
+    const response = await fetch(`${API_BASE_URL}/vehicles/update.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vehicleId, ...data })
+    });
+    return response.json();
+  },
+
   // Issue violation
   issueViolation: async (data: {
     vehicle_id: number;

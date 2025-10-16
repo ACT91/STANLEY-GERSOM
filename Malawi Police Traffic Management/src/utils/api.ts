@@ -95,6 +95,31 @@ export const api = {
     return response.json();
   },
 
+  // Analytics
+  getAnalytics: async () => {
+    const response = await fetch(`${API_BASE_URL}/analytics/statistics.php`);
+    return response.json();
+  },
+
+  getVehicleAnalytics: async (licensePlate: string) => {
+    const response = await fetch(`${API_BASE_URL}/analytics/vehicle-stats.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ license_plate: licensePlate })
+    });
+    return response.json();
+  },
+
+  getRecentActivity: async () => {
+    const response = await fetch(`${API_BASE_URL}/analytics/recent-activity.php`);
+    return response.json();
+  },
+
+  getAllActivities: async () => {
+    const response = await fetch(`${API_BASE_URL}/analytics/all-activities.php`);
+    return response.json();
+  },
+
   // Reports
   getReports: async (type: string, dateRange: DateRange) => {
     const response = await fetch(`${API_BASE_URL}/reports/generate.php`, {

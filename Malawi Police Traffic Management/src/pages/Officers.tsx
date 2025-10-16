@@ -19,11 +19,14 @@ export default function Officers() {
 
   useEffect(() => {
     loadOfficers();
+    // Set up real-time updates every 60 seconds for officers
+    const interval = setInterval(loadOfficers, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     filterOfficers();
-  }, [searchTerm, officers]);
+  }, [searchTerm, officers]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadOfficers = async () => {
     try {
@@ -60,6 +63,8 @@ export default function Officers() {
         setOfficers([...officers, result.data]);
         setNewOfficer({ serviceNumber: '', fullName: '', rank: '', station: '', pin: '' });
         setShowAddForm(false);
+        // Refresh data immediately after adding
+        loadOfficers();
       }
     } catch (error) {
       console.error('Failed to add officer:', error);
@@ -77,6 +82,8 @@ export default function Officers() {
             ? { ...o, isActive: !o.isActive }
             : o
         ));
+        // Refresh data immediately after update
+        loadOfficers();
       }
     } catch (error) {
       console.error('Failed to update officer:', error);

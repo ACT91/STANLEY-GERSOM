@@ -13,11 +13,14 @@ export default function Violations() {
 
   useEffect(() => {
     loadViolations();
+    // Set up real-time updates every 20 seconds for violations
+    const interval = setInterval(loadViolations, 20000);
+    return () => clearInterval(interval);
   }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     filterViolations();
-  }, [searchTerm, violations]);
+  }, [searchTerm, violations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadViolations = async () => {
     try {
@@ -57,6 +60,8 @@ export default function Violations() {
             : v
         ));
         setSelectedViolation(null);
+        // Refresh data immediately after update
+        loadViolations();
       }
     } catch (error) {
       console.error('Failed to update violation:', error);

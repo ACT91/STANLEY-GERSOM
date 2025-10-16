@@ -34,7 +34,14 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" style={{
+      backgroundImage: 'url(/malawi_police_logo.svg)',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center center',
+      backgroundSize: '2000px 2000px',
+      backgroundAttachment: 'fixed',
+      opacity: 0.95
+    }}>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Police Dashboard</CardTitle>

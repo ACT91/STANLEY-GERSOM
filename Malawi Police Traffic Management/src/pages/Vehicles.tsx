@@ -11,11 +11,14 @@ export default function Vehicles() {
 
   useEffect(() => {
     loadVehicles();
+    // Set up real-time updates every 45 seconds for vehicles
+    const interval = setInterval(loadVehicles, 45000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     filterVehicles();
-  }, [searchTerm, vehicles]);
+  }, [searchTerm, vehicles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadVehicles = async () => {
     try {
@@ -29,6 +32,8 @@ export default function Vehicles() {
       setLoading(false);
     }
   };
+
+
 
   const filterVehicles = () => {
     if (!searchTerm.trim()) {
