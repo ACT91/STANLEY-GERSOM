@@ -26,63 +26,60 @@ try {
         exit();
     }
     
-    $licensePlate = strtoupper(trim($data['license_plate']));
-    $isNewVehicle = false;
+    $licensePlate = $data['license_plate'];
     
-    // First, try to find existing vehicle
+    // First try to find existing vehicle
     $stmt = $pdo->prepare("SELECT * FROM vehicles WHERE license_plate = ?");
     $stmt->execute([$licensePlate]);
-    $vehicle = $stmt->fetch();
+    $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // If vehicle doesn't exist, create it
-    if (!$vehicle) {
+    if ($vehicle) {
+        echo json_encode([
+            'success' => true,
+            'vehicle' => $vehicle,
+            'message' => 'Vehicle found'
+        ]);
+    } else {
+        // Create new vehicle
+        if (!isset($data['owner_name']) || !isset($data['owner_phone']) || !isset($data['vehicles_type'])) {
+            echo json_encode(['success' => false, 'message' => 'Owner name, phone, and vehicle type required for registration']);
+            exit();
+        }
+        
         $insertStmt = $pdo->prepare("
             INSERT INTO vehicles (license_plate, owner_name, owner_phone, vehicles_type, registration_date) 
-            VALUES (?, ?, ?, ?, CURDATE())
+            VALUES (?, ?, ?, ?, NOW())
         ");
         
-        $insertStmt->execute([
+        $success = $insertStmt->execute([
             $licensePlate,
-            'To be updated',
-            'To be updated',
-            'sedan'
+            $data['owner_name'],
+            $data['owner_phone'],
+            $data['vehicles_type']
         ]);
         
-        // Get the newly created vehicle
-        $vehicleId = $pdo->lastInsertId();
-        $stmt = $pdo->prepare("SELECT * FROM vehicles WHERE vehiclesID = ?");
-        $stmt->execute([$vehicleId]);
-        $vehicle = $stmt->fetch();
-        $isNewVehicle = true;
+        if ($success) {
+            $vehicleId = $pdo->lastInsertId();
+            
+            // Get the newly created vehicle
+            $newVehicleStmt = $pdo->prepare("SELECT * FROM vehicles WHERE vehiclesID = ?");
+            $newVehicleStmt->execute([$vehicleId]);
+            $newVehicle = $newVehicleStmt->fetch(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'success' => true,
+                'vehicle' => $newVehicle,
+                'message' => 'Vehicle registered successfully'
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to register vehicle']);
+        }
     }
-    
-    // Get today's violations for this vehicle
-    $violationsStmt = $pdo->prepare("
-        SELECT v.*, vt.violation_name, vt.base_fine, o.fullName as officer_name
-        FROM violations v 
-        LEFT JOIN violation_types vt ON v.violation_type_id = vt.typeID 
-        LEFT JOIN officers o ON v.officer_id = o.officerID
-        WHERE v.vehicle_id = ? AND DATE(v.violation_date) = CURDATE()
-        ORDER BY v.violation_date DESC
-    ");
-    $violationsStmt->execute([$vehicle['vehiclesID']]);
-    $todayViolations = $violationsStmt->fetchAll();
-    
-    // Add today's violations to vehicle data
-    $vehicle['todayViolations'] = $todayViolations;
-    $vehicle['hasViolationsToday'] = count($todayViolations) > 0;
-    
-    echo json_encode([
-        'success' => true,
-        'vehicle' => $vehicle,
-        'isNewVehicle' => $isNewVehicle,
-        'message' => $isNewVehicle ? 'New vehicle registered' : 'Vehicle found'
-    ]);
     
 } catch(PDOException $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'System error. Please try again.'
+        'message' => 'Database error: ' . $e->getMessage()
     ]);
 }
 ?>

@@ -4,11 +4,22 @@ require_once '../config/database.php';
 try {
     $whereClause = "";
     $params = [];
+    $conditions = [];
+
+    // Handle officer filter
+    if (isset($_GET['officer_id'])) {
+        $conditions[] = "v.officer_id = ?";
+        $params[] = $_GET['officer_id'];
+    }
 
     // Handle status filter
     if (isset($_GET['status']) && $_GET['status'] !== 'all') {
-        $whereClause = "WHERE v.status = ?";
+        $conditions[] = "v.status = ?";
         $params[] = $_GET['status'];
+    }
+
+    if (!empty($conditions)) {
+        $whereClause = "WHERE " . implode(" AND ", $conditions);
     }
 
     $stmt = $pdo->prepare("
