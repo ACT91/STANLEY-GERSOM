@@ -74,8 +74,10 @@ try {
     ]);
     
     if ($success) {
+        $violationId = $pdo->lastInsertId();
         echo json_encode([
             'success' => true,
+            'violation_id' => $violationId,
             'ticket_number' => $ticketNumber,
             'violation_name' => $violationType['violation_name'],
             'base_fine' => $baseFine,

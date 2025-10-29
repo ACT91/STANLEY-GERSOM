@@ -115,6 +115,7 @@ class ApiService {
     required String licensePlate,
     required String ownerName,
     required String ownerPhone,
+    required String ownerEmail,
     required String vehicleType,
   }) async {
     try {
@@ -125,7 +126,37 @@ class ApiService {
           'license_plate': licensePlate,
           'owner_name': ownerName,
           'owner_phone': ownerPhone,
+          'owner_email': ownerEmail,
           'vehicles_type': vehicleType,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> createPaymentIntent(int violationId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/payments/create-payment-intent.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'violation_id': violationId}),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> confirmPayment(int violationId, String paymentIntentId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/payments/confirm-payment.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'violation_id': violationId,
+          'payment_intent_id': paymentIntentId,
         }),
       );
       return jsonDecode(response.body);

@@ -47,14 +47,15 @@ try {
         }
         
         $insertStmt = $pdo->prepare("
-            INSERT INTO vehicles (license_plate, owner_name, owner_phone, vehicles_type, registration_date) 
-            VALUES (?, ?, ?, ?, NOW())
+            INSERT INTO vehicles (license_plate, owner_name, owner_phone, owner_email, vehicles_type, registration_date) 
+            VALUES (?, ?, ?, ?, ?, NOW())
         ");
         
         $success = $insertStmt->execute([
             $licensePlate,
             $data['owner_name'],
             $data['owner_phone'],
+            $data['owner_email'] ?? null,
             $data['vehicles_type']
         ]);
         

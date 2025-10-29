@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/utils/api';
+import PaymentPage from './PaymentPage';
 import type { Violation } from '@/types';
 
 export default function Violations() {
@@ -10,6 +11,7 @@ export default function Violations() {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedViolation, setSelectedViolation] = useState<Violation | null>(null);
+  const [showPayment, setShowPayment] = useState<string | null>(null);
 
   useEffect(() => {
     loadViolations();
@@ -187,12 +189,22 @@ export default function Violations() {
                       </span>
                     </td>
                     <td className="p-2">
-                      <button
-                        onClick={() => setSelectedViolation(violation)}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
-                      >
-                        Manage
-                      </button>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setSelectedViolation(violation)}
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                        >
+                          Manage
+                        </button>
+                        {violation.status === 'pending' && (
+                          <button
+                            onClick={() => setShowPayment(violation.violationID.toString())}
+                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                          >
+                            Pay
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -228,6 +240,15 @@ export default function Violations() {
               <div className="flex gap-2 flex-wrap">
                 {selectedViolation.status === 'pending' && (
                   <>
+                    <button
+                      onClick={() => {
+                        setSelectedViolation(null);
+                        setShowPayment(selectedViolation.violationID.toString());
+                      }}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                    >
+                      Process Payment
+                    </button>
                     <button
                       onClick={() => updateViolationStatus(selectedViolation.violationID, 'paid')}
                       className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
@@ -268,6 +289,18 @@ export default function Violations() {
               </button>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {showPayment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <PaymentPage
+            violationId={showPayment}
+            onClose={() => {
+              setShowPayment(null);
+              loadViolations(); // Refresh violations after payment
+            }}
+          />
         </div>
       )}
     </div>

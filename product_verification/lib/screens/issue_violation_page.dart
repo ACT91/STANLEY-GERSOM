@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
 import '../providers/auth_provider.dart';
+import 'payment_page.dart';
 
 class IssueViolationPage extends StatefulWidget {
   final Map<String, dynamic> vehicle;
@@ -75,33 +76,21 @@ class _IssueViolationPageState extends State<IssueViolationPage> {
         );
       }
       
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Violation Issued Successfully'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Ticket Number: ${result['ticket_number']}'),
-              Text('Violation: ${result['violation_name']}'),
-              Text('Fine Amount: MWK ${result['final_fine']}'),
-              if (result['is_repeat_offender'])
-                Text(
-                  'Repeat Offender Surcharge Applied',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                ),
-            ],
+      // Navigate to payment page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentPage(
+            violation: {
+              'violationID': result['violation_id'],
+              'ticket_number': result['ticket_number'],
+              'violation_name': result['violation_name'],
+              'fine_amount': result['final_fine'],
+              'license_plate': widget.vehicle['license_plate'],
+              'location': _locationController.text.trim(),
+              'owner_email': widget.vehicle['owner_email'],
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
         ),
       );
     } else if (mounted) {

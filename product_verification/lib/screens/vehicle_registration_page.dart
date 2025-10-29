@@ -15,6 +15,7 @@ class VehicleRegistrationPage extends StatefulWidget {
 class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
   final _ownerNameController = TextEditingController();
   final _ownerPhoneController = TextEditingController();
+  final _ownerEmailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String _selectedVehicleType = '';
   bool _isLoading = false;
@@ -35,6 +36,7 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
         licensePlate: widget.licensePlate,
         ownerName: _ownerNameController.text.trim(),
         ownerPhone: _ownerPhoneController.text.trim(),
+        ownerEmail: _ownerEmailController.text.trim(),
         vehicleType: _selectedVehicleType,
       );
 
@@ -136,6 +138,18 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
                       'Enter phone number',
                       (value) => value?.isEmpty ?? true ? 'Phone number required' : null,
                       keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 16),
+                    _buildFormField(
+                      'Owner Email',
+                      _ownerEmailController,
+                      'Enter email address',
+                      (value) {
+                        if (value?.isEmpty ?? true) return 'Email required';
+                        if (!value!.contains('@')) return 'Invalid email';
+                        return null;
+                      },
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     SizedBox(height: 16),
                     Column(

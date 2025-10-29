@@ -39,6 +39,7 @@ CREATE TABLE vehicles (
     license_plate VARCHAR(20) UNIQUE NOT NULL,
     owner_name VARCHAR(100),
     owner_phone VARCHAR(15),
+    owner_email VARCHAR(100),
     vehicles_type ENUM('sedan', 'suv', 'truck', 'motorcycle', 'bus', 'other') DEFAULT 'sedan',
     registration_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -66,7 +67,8 @@ CREATE TABLE violations (
     notes TEXT,
     status ENUM('pending', 'paid', 'disputed', 'cancelled') DEFAULT 'pending',
     payment_date TIMESTAMP NULL,
-    payment_method ENUM('cash', 'airtel_money', 'mpamba', 'bank') NULL,
+    payment_method ENUM('cash', 'airtel_money', 'mpamba', 'bank', 'stripe') NULL,
+    payment_intent_id VARCHAR(100) NULL,
     dispute_reason TEXT NULL,
     resolved_by INT NULL,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehiclesID),
